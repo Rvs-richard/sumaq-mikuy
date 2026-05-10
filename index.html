@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sumaq Mikuy – Nutrición Inteligente</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=TU_API_KEY&libraries=places"></script>
+  <script>
+    window.SUMAQ_AI_KEY = '';
+    document.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('sumaq_admin_api_key');
+      if (saved) { try { const k = JSON.parse(saved); if (k) window.SUMAQ_AI_KEY = k; } catch {} }
+    });
+  </script>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- ======= NAVBAR ======= -->
+<nav class="navbar" id="main-navbar">
+  <div class="nav-brand" onclick="showSection('inicio')">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+      <ellipse cx="16" cy="22" rx="11" ry="7" fill="#7aba42" opacity=".3"/>
+      <path d="M16 6C10 6 6 11 8 16C10 20 16 22 16 22C16 22 22 20 24 16C26 11 22 6 16 6Z" fill="#4a8c2a"/>
+      <path d="M16 6C16 6 13 10 14 15C14.5 18 16 22 16 22" stroke="#2d6a1f" stroke-width="1.5" fill="none"/>
+    </svg>
+    Sumaq <span>Mikuy</span>
+  </div>
+  <div class="nav-links">
+    <div class="nav-link active" onclick="showSection('inicio')">🏠 Inicio</div>
+    <div class="nav-link" onclick="showSection('nutricion')">🥗 Nutrición</div>
+    <div class="nav-link" onclick="showSection('plan')">📅 Plan Semanal</div>
+    <div class="nav-link" onclick="showSection('pedido')">📦 Pedidos</div>
+    <div class="nav-link" onclick="showSection('ubicacion')">📍 Ubicación</div>
+    <div class="nav-link" onclick="showSection('seguimiento')">🛵 Mi Delivery</div>
+    <div class="nav-link" onclick="showSection('perfil')">👤 Perfil</div>
+    <div class="nav-link" onclick="showSection('metricas')">📊 Métricas</div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-link" onclick="showSection('chat')" style="position:relative">
+      💬 Chat IA
+      <span class="notif-dot"></span>
+    </div>
+    <div class="cart-btn" onclick="toggleCarrito()">
+      🛒 Carrito
+      <span class="cart-count" style="display:none">0</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="cerrarSesion()">Salir</button>
+  </div>
+</nav>
+
+<!-- ======= CARRITO PANEL ======= -->
+<div class="carrito-panel" id="carrito-panel">
+  <div class="carrito-header">
+    <span class="carrito-title">🛒 Mi Carrito</span>
+    <button class="btn btn-ghost btn-sm btn-icon" onclick="toggleCarrito()">✕</button>
+  </div>
+  <div class="carrito-items" id="carrito-items"></div>
+  <div class="carrito-footer">
+    <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;margin-bottom:4px">
+      <span>Total</span>
+      <span id="carrito-total" style="color:var(--amber)">S/0.00</span>
+    </div>
+    <button class="btn btn-green btn-full" onclick="Cart.checkout()">
+      📲 Pedir por WhatsApp
+    </button>
+    <button class="btn btn-secondary btn-full btn-sm" onclick="Cart.clear()">Vaciar carrito</button>
+  </div>
+</div>
+
+<!-- ======= MAIN ======= -->
+<main>
+
+  <!-- ===== INICIO / HERO ===== -->
+  <section id="section-inicio" class="section active">
+    <div class="hero">
+      <!-- Blobs -->
+      <div class="hero-blob-1"></div>
+      <div class="hero-blob-2"></div>
+      <div class="hero-blob-3"></div>
+
+      <!-- SVG veggie deco lines -->
+      <svg style="position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;opacity:.13" viewBox="0 0 1200 700" fill="none">
+        <circle cx="320" cy="420" r="38" stroke="#4a8c2a" stroke-width="1.2"/>
+        <ellipse cx="260" cy="500" rx="22" ry="32" stroke="#4a8c2a" stroke-width="1"/>
+        <path d="M450 480 Q460 450 480 460 Q470 490 450 480Z" stroke="#4a8c2a" stroke-width="1"/>
+        <circle cx="500" cy="380" r="18" stroke="#d4820a" stroke-width="1"/>
+        <path d="M200 350 Q220 320 240 340 Q230 370 210 360Z" stroke="#4a8c2a" stroke-width="1.2"/>
+        <ellipse cx="380" cy="560" rx="28" ry="18" stroke="#4a8c2a" stroke-width="1"/>
+        <path d="M150 460 C160 440 180 445 175 465 C170 480 150 475 150 460Z" stroke="#4a8c2a" stroke-width="1"/>
+        <line x1="270" y1="390" x2="270" y2="430" stroke="#4a8c2a" stroke-width="1"/>
+        <path d="M560 500 Q580 480 600 490" stroke="#d4820a" stroke-width="1" stroke-dasharray="4 4"/>
+      </svg>
+
+      <!-- LEFT -->
+      <div class="hero-left">
+        <div class="hero-eyebrow">🌿 Comida saludable · Ayacucho</div>
+        <div class="hero-sub">Almuerzo saludable</div>
+        <h1 class="hero-title">
+          Sabores<br>
+          <span class="accent-word">Nutritivos</span>
+        </h1>
+        <p class="hero-badge">100% ingredientes andinos</p>
+        <p class="hero-desc">
+          Bowls frescos elaborados con quinua, kiwicha y verduras de los Andes. Personalizados según tu IMC y objetivos. Come mejor, vive mejor.
+        </p>
+        <div class="hero-offer-pct"></div>
+        <p class="hero-offer-delivery"> </p>
+        <div class="hero-actions">
+          <button class="btn btn-green btn-xl" onclick="showSection('nutricion')">
+            Ver Nuestros Bowls →
+          </button>
+          <button class="btn btn-outline btn-xl" onclick="showSection('nutricion');setTimeout(()=>document.getElementById('edad')?.focus(),400)">
+            Calcular mi IMC
+          </button>
+        </div>
+        <div class="hero-chips">
+          <span class="chip"><span class="chip-icon">🥦</span> Nutricionalmente balanceado</span>
+          <span class="chip"><span class="chip-icon">🛵</span> Delivery rápido</span>
+          <span class="chip"><span class="chip-icon">📱</span> Pedido por WhatsApp</span>
+        </div>
+      </div>
+
+      <!-- Ri gt logo sumaq iu -->
+<div class="hero-right">
+  <div class="hero-img-wrap">
+
+    <div class="hero-circle">
+      <img src="img/sumaq_sin_fondo_transparente.png" alt="Bowl saludable" class="hero-img">
+    </div>
+
+    <!-- Floating tags -->
+    <div class="hero-ftag hero-ftag-kcal">
+      <div class="hero-ftag-dot" style="background:#f59e0b;width:10px;height:10px;border-radius:50%"></div>
+      <div>
+        <div style="font-size:11px;color:#888;font-weight:500">Calorías</div>
+        <div style="color:var(--text)">🔥 320–580 kcal</div>
+      </div>
+    </div>
+
+    <div class="hero-ftag hero-ftag-prot">
+      <div class="hero-ftag-dot" style="background:#4a8c2a;width:10px;height:10px;border-radius:50%"></div>
+      <div>
+        <div style="font-size:11px;color:#888;font-weight:500">Proteína</div>
+        <div style="color:var(--text)">💪 Alta proteína</div>
+      </div>
+    </div>
+
+    <div class="hero-ftag hero-ftag-wsp">
+      <div class="hero-ftag-dot" style="background:#25D366;width:10px;height:10px;border-radius:50%"></div>
+      <div>
+        <div style="font-size:11px;color:#888;font-weight:500">WhatsApp</div>
+        <div style="color:var(--text)">Pide ahora</div>
+      </div>
+    </div>
+
+    <div class="hero-leaf hero-leaf-1">🌿</div>
+    <div class="hero-leaf hero-leaf-2">🍃</div>
+
+  </div>
+</div>
+
+      <div class="scroll-indicator" onclick="showSection('nutricion')">
+        <div class="scroll-dot"></div>
+        <span>Ver bowls</span>
+      </div>
+    </div>
+
+    <!-- Bowls preview -->
+    <div style="background:var(--green-bg2);border-top:1.5px solid var(--border);padding:56px 32px">
+      <div style="max-width:1100px;margin:0 auto">
+        <div style="text-align:center;margin-bottom:36px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green-mid);margin-bottom:10px">Nuestro Menú</div>
+          <h2 class="section-title" style="font-size:42px">Nuestros Bowls</h2>
+          <p class="section-subtitle">Frescos, nutritivos y personalizados para ti</p>
+        </div>
+        <div class="bowls-grid" id="bowls-grid-hero" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))"></div>
+        <div style="text-align:center;margin-top:32px">
+          <button class="btn btn-green btn-lg" onclick="showSection('nutricion')">
+            Evaluar mi nutrición y obtener recomendación →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features strip -->
+    <div style="background:var(--green-dark);padding:48px 72px;display:grid;grid-template-columns:repeat(3,1fr);gap:32px">
+      <div style="display:flex;align-items:flex-start;gap:16px">
+        <div style="font-size:28px;flex-shrink:0">🌿</div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:white;margin-bottom:4px">Ingredientes Andinos</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.55">Quinua, kiwicha y verduras frescas de la región de Ayacucho, cosechadas diariamente.</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:16px">
+        <div style="font-size:28px;flex-shrink:0">🧬</div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:white;margin-bottom:4px">Nutrición Personalizada</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.55">Calcula tu IMC y obtén recomendaciones de bowls adaptadas a tus objetivos de salud.</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:16px">
+        <div style="font-size:28px;flex-shrink:0">💬</div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:white;margin-bottom:4px">Nutricionista IA</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.55">Chat con inteligencia artificial para responder tus dudas nutricionales al instante.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== NUTRICION ===== -->
+  <section id="section-nutricion" class="section">
+    <div class="main-content">
+      <h2 class="section-title">🥗 Nutrición & Bowls</h2>
+      <p class="section-subtitle">Evalúa tu IMC y descubre el bowl ideal para tus objetivos</p>
+
+      <div class="grid-2" style="gap:24px;margin-bottom:32px">
+        <div class="card card-elevated">
+          <h3 style="font-family:var(--font-display);font-size:22px;margin-bottom:20px;color:var(--green-dark)">📋 Evaluación Nutricional</h3>
+          <div class="form-group">
+            <label class="form-label">Edad (años)</label>
+            <input type="number" id="edad" class="input-field" placeholder="25" min="10" max="99">
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Peso (kg)</label>
+              <input type="number" id="peso" class="input-field" placeholder="70" min="20" max="300" step="0.1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Talla (cm)</label>
+              <input type="number" id="talla" class="input-field" placeholder="170" min="100" max="250">
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Sexo</label>
+              <select id="sexo" class="input-field">
+                <option value="m">Masculino</option>
+                <option value="f">Femenino</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Objetivo</label>
+              <select id="objetivo" class="input-field">
+                <option value="mantener">⚖️ Mantener peso</option>
+                <option value="bajar">🔻 Bajar de peso</option>
+                <option value="subir">🔺 Ganar músculo</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-green btn-full btn-lg" style="margin-top:8px" onclick="evaluarNutricion()">
+            🔍 Evaluar y Recomendar
+          </button>
+        </div>
+
+        <div id="resultado-card">
+          <div class="card card-elevated" style="height:100%">
+            <h3 style="font-family:var(--font-display);font-size:22px;margin-bottom:20px;color:var(--green-dark)">📊 Tu Resultado</h3>
+            <div class="imc-display" id="imc-display" style="border-color:var(--border)">
+              <div style="color:var(--text-muted);font-size:14px">Completa la evaluación</div>
+            </div>
+            <div id="resultado-content"></div>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="font-family:var(--font-display);font-size:26px;margin-bottom:16px;color:var(--green-dark)">Todos nuestros Bowls</h3>
+      <div class="bowls-grid" id="bowls-grid"></div>
+    </div>
+  </section>
+
+  <!-- ===== PLAN SEMANAL ===== -->
+  <section id="section-plan" class="section">
+    <div class="main-content">
+      <h2 class="section-title">📅 Plan Semanal</h2>
+      <p class="section-subtitle">Tu plan alimentario personalizado basado en tu evaluación nutricional</p>
+      <div id="plan-container"></div>
+    </div>
+  </section>
+
+  <!-- ===== PEDIDOS ===== -->
+  <section id="section-pedido" class="section">
+    <div class="main-content">
+      <h2 class="section-title">📦 Hacer Pedido</h2>
+      <p class="section-subtitle">Personaliza tu bowl con toppings, extras y notas especiales</p>
+      <div class="grid-2">
+        <!-- COLUMNA IZQUIERDA: CONFIGURACIÓN DEL PEDIDO -->
+        <div>
+          <!-- PASO 1: BOWL -->
+          <div class="card card-elevated" style="margin-bottom:16px">
+            <div class="pedido-paso-header">
+              <span class="pedido-paso-num">1</span>
+              <h3 style="font-family:var(--font-display);font-size:20px;color:var(--green-dark)">🥗 Elige tu Bowl</h3>
+            </div>
+            <div class="form-group">
+              <select id="bowl-select" class="input-field"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">🛵 Zona de Delivery</label>
+              <select id="zona-select" class="input-field">
+                <option value="centro">Centro de Ayacucho — S/3 · 20-30 min</option>
+                <option value="media">Zona media — S/5 · 30-45 min</option>
+                <option value="lejos">Zona lejana — S/7 · 45-60 min</option>
+              </select>
+            </div>
+            <!-- MAPA SELECTOR -->
+            <div style="margin-top:12px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                <label class="form-label" style="margin:0">📍 Tu ubicación en el mapa</label>
+                <button id="btn-mi-ubicacion" class="btn btn-secondary btn-sm">📍 Mi ubicación</button>
+              </div>
+              <div id="map-picker" style="height:240px;border-radius:14px;overflow:hidden;border:1.5px solid var(--border)"></div>
+              <div id="zona-info-mapa" style="margin-top:10px"></div>
+              <div id="direccion-detectada" style="display:none;font-size:12px;color:var(--text-muted);margin-top:6px;padding:8px;background:var(--bg-card2);border-radius:8px"></div>
+              <p style="font-size:11px;color:var(--text-muted);margin-top:6px">Toca el mapa para marcar tu dirección exacta o usa el botón</p>
+            </div>
+          </div>
+
+          <!-- PASO 2: TOPPINGS -->
+          <div class="card card-elevated" style="margin-bottom:16px">
+            <div class="pedido-paso-header">
+              <span class="pedido-paso-num">2</span>
+              <h3 style="font-family:var(--font-display);font-size:20px;color:var(--green-dark)">🎨 Personaliza con Toppings</h3>
+            </div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Selecciona los extras que deseas agregar a tu bowl</p>
+            <div id="toppings-container"></div>
+          </div>
+
+          <!-- PASO 3: NOTAS -->
+          <div class="card card-elevated" style="margin-bottom:16px">
+            <div class="pedido-paso-header">
+              <span class="pedido-paso-num">3</span>
+              <h3 style="font-family:var(--font-display);font-size:20px;color:var(--green-dark)">📝 Notas Especiales</h3>
+            </div>
+            <textarea id="notas-pedido" class="input-field" rows="2"
+              placeholder="Ej: sin ají, extra limón, sin cebolla, salsa aparte..."
+              style="resize:none;font-size:14px"></textarea>
+          </div>
+
+          <!-- RESUMEN Y BOTONES -->
+          <div class="card card-elevated">
+            <div id="pedido-preview"></div>
+            <button class="btn btn-green btn-full btn-lg" style="margin-top:16px" onclick="agregarAlCarrito()">
+              🛒 Agregar al Carrito
+            </button>
+            <button class="btn btn-secondary btn-full btn-sm" style="margin-top:8px" onclick="toggleCarrito()">
+              Ver Carrito → Pedir por WhatsApp
+            </button>
+          </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: HISTORIAL -->
+        <div>
+          <div class="card card-elevated">
+            <h3 style="font-family:var(--font-display);font-size:20px;margin-bottom:16px;color:var(--green-dark)">📋 Mis Pedidos Anteriores</h3>
+            <div id="historial-pedidos"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CHAT IA ===== -->
+  <section id="section-chat" class="section">
+    <div class="main-content">
+      <h2 class="section-title">💬 Chat con Sumaq IA</h2>
+      <p class="section-subtitle">Tu nutricionista virtual con inteligencia artificial</p>
+      <div class="card card-elevated" style="padding:0;overflow:hidden">
+        <div class="quick-replies" style="padding:16px 16px 8px">
+          <span class="quick-reply" onclick="enviarRapido('¿Qué bowl me recomiendas?')">¿Qué bowl me recomiendas?</span>
+          <span class="quick-reply" onclick="enviarRapido('¿Cuántas calorías tiene el Bowl Proteico?')">Calorías del Bowl Proteico</span>
+          <span class="quick-reply" onclick="enviarRapido('¿Cuánto cuesta el delivery al centro?')">Precio de delivery</span>
+          <span class="quick-reply" onclick="enviarRapido('Tengo diabetes, ¿qué bowl me conviene?')">Tengo diabetes</span>
+          <span class="quick-reply" onclick="enviarRapido('Quiero bajar de peso, ¿qué me recomiendas?')">Quiero bajar de peso</span>
+        </div>
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-messages"></div>
+          <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Escribe tu pregunta sobre nutrición..." maxlength="500">
+            <button class="btn btn-green btn-icon" onclick="enviarMensaje()">↑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PERFIL ===== -->
+  <section id="section-perfil" class="section">
+    <div class="main-content">
+      <h2 class="section-title">👤 Mi Perfil</h2>
+      <p class="section-subtitle">Tu información nutricional y actividad</p>
+      <div id="perfil-content"></div>
+    </div>
+  </section>
+
+  <!-- ===== MÉTRICAS ===== -->
+  <section id="section-metricas" class="section">
+    <div class="main-content">
+      <h2 class="section-title">📊 Métricas</h2>
+      <p class="section-subtitle">Tu actividad y estadísticas en Sumaq Mikuy</p>
+      <div id="metricas-content"></div>
+    </div>
+  </section>
+
+  <!-- ===== UBICACIÓN DEL RESTAURANTE ===== -->
+  <section id="section-ubicacion" class="section">
+    <div class="main-content">
+      <h2 class="section-title">📍 Dónde Estamos</h2>
+      <p class="section-subtitle">Encuéntranos en el corazón de Ayacucho</p>
+      <div class="grid-2">
+        <div class="card card-elevated">
+          <div id="map-restaurante" style="height:340px;border-radius:14px;overflow:hidden;border:1.5px solid var(--border)"></div>
+          <button id="btn-como-llegar" class="btn btn-green btn-full" style="margin-top:14px">
+            🗺️ Cómo llegar (Google Maps)
+          </button>
+        </div>
+        <div>
+          <div class="card card-elevated" style="margin-bottom:16px">
+            <h3 style="font-family:var(--font-display);font-size:20px;margin-bottom:16px">🌿 Sumaq Mikuy</h3>
+            <div class="perfil-stat"><span class="label">📌 Dirección</span><span class="value">Jr. Lima 123, Ayacucho</span></div>
+            <div class="perfil-stat"><span class="label">📞 Teléfono</span><span class="value">999 999 999</span></div>
+            <div class="perfil-stat"><span class="label">🕐 Horario</span><span class="value">Lun–Sáb 8am – 6pm</span></div>
+            <div class="perfil-stat"><span class="label">🛵 Delivery</span><span class="value">Lun–Sáb 11am – 5pm</span></div>
+            <div class="perfil-stat"><span class="label">📲 WhatsApp</span><span class="value">+51 999 999 999</span></div>
+          </div>
+          <div class="card card-elevated">
+            <h3 style="font-family:var(--font-display);font-size:18px;margin-bottom:16px">🛵 Zonas de Delivery</h3>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div class="zona-info-badge" style="border-color:#22c55e;background:#22c55e18">
+                <span style="font-size:20px">🟢</span>
+                <div><div style="font-weight:700;color:#22c55e">Centro</div><div style="font-size:12px;color:var(--text-muted)">Hasta 2 km</div></div>
+                <div style="margin-left:auto;text-align:right"><div style="font-weight:800;color:#22c55e">S/3</div><div style="font-size:11px;color:var(--text-muted)">20-30 min</div></div>
+              </div>
+              <div class="zona-info-badge" style="border-color:#f59e0b;background:#f59e0b18">
+                <span style="font-size:20px">🟡</span>
+                <div><div style="font-weight:700;color:#f59e0b">Zona media</div><div style="font-size:12px;color:var(--text-muted)">2 – 4.5 km</div></div>
+                <div style="margin-left:auto;text-align:right"><div style="font-weight:800;color:#f59e0b">S/5</div><div style="font-size:11px;color:var(--text-muted)">30-45 min</div></div>
+              </div>
+              <div class="zona-info-badge" style="border-color:#ef4444;background:#ef444418">
+                <span style="font-size:20px">🔴</span>
+                <div><div style="font-weight:700;color:#ef4444">Zona lejana</div><div style="font-size:12px;color:var(--text-muted)">4.5 – 8 km</div></div>
+                <div style="margin-left:auto;text-align:right"><div style="font-weight:800;color:#ef4444">S/7</div><div style="font-size:11px;color:var(--text-muted)">45-60 min</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SEGUIMIENTO DE DELIVERY ===== -->
+  <section id="section-seguimiento" class="section">
+    <div class="main-content">
+      <h2 class="section-title">🛵 Seguimiento de Delivery</h2>
+      <p class="section-subtitle">Sigue tu pedido en tiempo real</p>
+
+      <div id="seguimiento-empty" style="display:none">
+        <div class="empty-state">
+          <span class="empty-icon">🛵</span>
+          <h3>Sin pedidos activos</h3>
+          <p>Haz tu primer pedido para ver el seguimiento aquí</p>
+          <button class="btn btn-green" style="margin-top:20px" onclick="showSection('pedido')">📦 Hacer pedido</button>
+        </div>
+      </div>
+
+      <div id="map-seguimiento-wrap">
+        <!-- Barra de progreso -->
+        <div class="card card-elevated" style="margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div>
+              <div style="font-weight:700;font-size:18px">🛵 En camino</div>
+              <div style="font-size:13px;color:var(--text-muted)">Tu rider ya salió con tu pedido</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:22px;font-weight:800;color:var(--accent)" id="eta-tiempo">~25 min</div>
+              <div style="font-size:11px;color:var(--text-muted)">tiempo estimado</div>
+            </div>
+          </div>
+          <div style="background:var(--bg-card2);border-radius:99px;height:10px;overflow:hidden">
+            <div id="seguimiento-pct" style="background:linear-gradient(90deg,var(--green-500),var(--accent));height:100%;border-radius:99px;width:5%;transition:width 1.5s ease"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:6px">
+            <span>🌿 Restaurante</span>
+            <span>🏠 Tu ubicación</span>
+          </div>
+        </div>
+
+        <!-- Mapa seguimiento -->
+        <div class="card card-elevated">
+          <div id="map-seguimiento" style="height:380px;border-radius:14px;overflow:hidden;border:1.5px solid var(--border)"></div>
+        </div>
+
+        <!-- Pasos del pedido -->
+        <div class="card card-elevated" style="margin-top:16px">
+          <h3 style="font-family:var(--font-display);font-size:18px;margin-bottom:16px">📋 Estado del pedido</h3>
+          <div class="seguimiento-steps">
+            <div class="step-item done"><span class="step-dot">✅</span><div><div class="step-title">Pedido recibido</div><div class="step-sub">Tu pedido fue confirmado</div></div></div>
+            <div class="step-item done"><span class="step-dot">👨‍🍳</span><div><div class="step-title">En preparación</div><div class="step-sub">Nuestro equipo está preparando tu bowl</div></div></div>
+            <div class="step-item active"><span class="step-dot">🛵</span><div><div class="step-title">En camino</div><div class="step-sub">Tu rider está llevando tu pedido</div></div></div>
+            <div class="step-item"><span class="step-dot">🏠</span><div><div class="step-title">Entregado</div><div class="step-sub">¡Buen provecho!</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Mobile Nav -->
+<nav class="mobile-nav" id="mobile-nav">
+  <div class="mobile-nav-item active" onclick="showSection('inicio');setMobileActive(this)"><span>🏠</span><span>Inicio</span></div>
+  <div class="mobile-nav-item" onclick="showSection('nutricion');setMobileActive(this)"><span>🥗</span><span>Nutrición</span></div>
+  <div class="mobile-nav-item" onclick="showSection('pedido');setMobileActive(this)"><span>📦</span><span>Pedido</span></div>
+  <div class="mobile-nav-item" onclick="showSection('ubicacion');setMobileActive(this)"><span>📍</span><span>Mapa</span></div>
+  <div class="mobile-nav-item" onclick="showSection('seguimiento');setMobileActive(this)"><span>🛵</span><span>Delivery</span></div>
+  <div class="mobile-nav-item" onclick="showSection('chat');setMobileActive(this)"><span>💬</span><span>Chat IA</span></div>
+</nav>
+
+<script src="js/store.js"></script>
+<script src="js/nutrition.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/maps.js"></script>
+<script src="js/app.js"></script>
+<script>
+  function setMobileActive(el) {
+    document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    const heroGrid = document.getElementById('bowls-grid-hero');
+    if (heroGrid) {
+      heroGrid.innerHTML = Object.values(BOWLS).map(bowl => `
+        <div class="bowl-card" onclick="showSection('nutricion')" style="cursor:pointer">
+          <span class="bowl-emoji-big">${bowl.emoji}</span>
+          <div class="bowl-name">${bowl.nombre}</div>
+          <div class="bowl-price">${formatMoney(bowl.precio)}</div>
+          <div class="bowl-desc">${bowl.descripcion}</div>
+          <div class="bowl-macros">
+            <span class="macro">🔥 ${bowl.calorias} kcal</span>
+            <span class="macro">💪 ${bowl.proteinas}g prot</span>
+          </div>
+          <button class="btn btn-green btn-full btn-sm" style="margin-top:12px"
+            onclick="event.stopPropagation();Cart.add('${bowl.id}','centro')">
+            ➕ Agregar
+          </button>
+        </div>
+      `).join('');
+    }
+  });
+   // 🔥 PWA SERVICE WORKER
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('PWA lista'))
+      .catch(err => console.log('Error:', err));
+  }
+</script>
+</body>
+</html>

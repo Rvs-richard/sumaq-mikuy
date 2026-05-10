@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sumaq Mikuy – Ingresar</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/app.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--green-bg2);
+      position: relative; overflow: hidden;
+    }
+    /* Blobs decorativos */
+    .bg-blob-1 {
+      position: absolute; width: 580px; height: 500px;
+      background: var(--green-pale);
+      border-radius: 65% 35% 50% 50% / 45% 55% 45% 55%;
+      top: -120px; left: -150px; z-index: 0;
+      animation: morphB1 9s ease-in-out infinite;
+    }
+    .bg-blob-2 {
+      position: absolute; width: 400px; height: 340px;
+      background: rgba(212,130,10,0.06);
+      border-radius: 40% 60% 55% 45% / 60% 40% 60% 40%;
+      bottom: -80px; right: -100px; z-index: 0;
+      animation: morphB2 11s ease-in-out infinite;
+    }
+    .bg-blob-3 {
+      position: absolute; width: 300px; height: 250px;
+      background: var(--green-bg);
+      border-radius: 50% 50% 40% 60% / 50% 40% 60% 50%;
+      top: 60%; left: -50px; z-index: 0;
+    }
+    @keyframes morphB1 {
+      0%,100% { border-radius: 65% 35% 50% 50% / 45% 55% 45% 55%; }
+      50%      { border-radius: 40% 60% 60% 40% / 60% 30% 70% 40%; }
+    }
+    @keyframes morphB2 {
+      0%,100% { border-radius: 40% 60% 55% 45% / 60% 40% 60% 40%; }
+      50%      { border-radius: 60% 40% 40% 60% / 40% 65% 35% 60%; }
+    }
+    /* Veggie decoraciones */
+    .deco-leaf { position: absolute; font-size: 32px; opacity: 0.25; pointer-events: none; }
+    .deco-leaf-1 { top: 12%; left: 8%;   animation: leafSway 5s ease-in-out infinite; }
+    .deco-leaf-2 { top: 20%; right: 10%; animation: leafSway 4s ease-in-out infinite; animation-delay: 1s; font-size: 22px; }
+    .deco-leaf-3 { bottom: 15%; left: 12%; animation: leafSway 6s ease-in-out infinite; animation-delay: 2s; font-size: 26px; }
+    .deco-leaf-4 { bottom: 20%; right: 8%; animation: leafSway 4.5s ease-in-out infinite; font-size: 20px; }
+
+    .login-wrapper {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 460px; padding: 16px;
+      animation: fadeUp 0.5s ease;
+    }
+    .login-card {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-2xl);
+      padding: 40px 36px;
+      box-shadow: 0 32px 80px rgba(45,106,31,0.14), 0 0 0 1px rgba(255,255,255,0.6);
+    }
+    .login-logo { text-align: center; margin-bottom: 32px; }
+    .logo-icon {
+      width: 76px; height: 76px;
+      background: linear-gradient(135deg, var(--green-mid), var(--green-light));
+      border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px; margin: 0 auto 16px;
+      box-shadow: 0 10px 30px rgba(74,140,42,0.3);
+    }
+    .login-logo h1 { font-family: var(--font-display); font-size: 32px; color: var(--green-dark); margin-bottom: 6px; }
+    .login-logo h1 span { color: var(--amber); }
+    .login-logo p { font-size: 13px; color: var(--text-muted); }
+
+    .tab-switcher {
+      display: flex; background: var(--green-bg);
+      border-radius: var(--radius-full); padding: 4px; margin-bottom: 24px;
+      border: 1.5px solid var(--border);
+    }
+    .tab-btn {
+      flex: 1; padding: 9px; border-radius: var(--radius-full); border: none;
+      background: transparent; font-family: var(--font-body);
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      cursor: pointer; transition: var(--transition);
+    }
+    .tab-btn.active { background: white; color: var(--green-dark); box-shadow: var(--shadow-sm); }
+
+    .login-form, .register-form { display: none; }
+    .login-form.show, .register-form.show { display: block; animation: fadeUp 0.3s ease; }
+
+    .grid-2-login { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .admin-link { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+    .admin-link a {
+      color: var(--green-dark); font-weight: 600; cursor: pointer;
+      border-bottom: 1px dashed var(--green-mid); transition: var(--transition);
+    }
+    .admin-link a:hover { color: var(--amber); border-color: var(--amber); }
+
+    .pass-toggle { position: relative; }
+    .pass-toggle input { padding-right: 44px; }
+    .pass-toggle-btn {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px;
+      transition: var(--transition);
+    }
+    .pass-toggle-btn:hover { color: var(--green-mid); }
+  </style>
+</head>
+<body>
+
+<!-- Blobs -->
+<div class="bg-blob-1"></div>
+<div class="bg-blob-2"></div>
+<div class="bg-blob-3"></div>
+
+<!-- Hojas decorativas -->
+<div class="deco-leaf deco-leaf-1">🌿</div>
+<div class="deco-leaf deco-leaf-2">🍃</div>
+<div class="deco-leaf deco-leaf-3">🌱</div>
+<div class="deco-leaf deco-leaf-4">🍀</div>
+
+<div id="toast-container"></div>
+
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">🌿</div>
+      <h1>Sumaq <span>Mikuy</span></h1>
+      <p>Nutrición Inteligente en Ayacucho</p>
+    </div>
+
+    <div class="tab-switcher">
+      <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Ingresar</button>
+      <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Registrarme</button>
+    </div>
+
+    <!-- Login -->
+    <div class="login-form show" id="form-login">
+      <div class="form-group">
+        <label class="form-label">Usuario</label>
+        <input type="text" id="login-usuario" class="input-field" placeholder="tu@email.com" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <div class="pass-toggle">
+          <input type="password" id="login-pass" class="input-field" placeholder="••••••••" autocomplete="current-password">
+          <button class="pass-toggle-btn" type="button" onclick="togglePass('login-pass')">👁</button>
+        </div>
+      </div>
+      <button class="btn btn-green btn-full btn-lg" style="margin-top:16px" onclick="doLogin()">
+        Ingresar →
+      </button>
+    </div>
+
+    <!-- Register -->
+    <div class="register-form" id="form-register">
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input type="text" id="reg-nombre" class="input-field" placeholder="¿Cómo te llamamos?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Usuario</label>
+        <input type="text" id="reg-usuario" class="input-field" placeholder="tu@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <div class="pass-toggle">
+          <input type="password" id="reg-pass" class="input-field" placeholder="Mínimo 4 caracteres">
+          <button class="pass-toggle-btn" type="button" onclick="togglePass('reg-pass')">👁</button>
+        </div>
+      </div>
+      <div class="grid-2-login">
+        <div class="form-group">
+          <label class="form-label">Edad</label>
+          <input type="number" id="reg-edad" class="input-field" placeholder="25" min="10" max="99">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sexo</label>
+          <select id="reg-sexo" class="input-field">
+            <option value="m">Masculino</option>
+            <option value="f">Femenino</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-green btn-full btn-lg" style="margin-top:8px" onclick="doRegister()">
+        Crear Cuenta →
+      </button>
+    </div>
+
+    <div class="admin-link">
+      ¿Eres administrador? <a onclick="irAdmin()">Acceder al panel →</a>
+    </div>
+  </div>
+</div>
+
+<script src="js/store.js"></script>
+<script>
+  if (Auth.isLoggedIn()) window.location.href = 'index.html';
+
+  function switchTab(tab) {
+    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+    document.getElementById('form-login').classList.toggle('show', tab === 'login');
+    document.getElementById('form-register').classList.toggle('show', tab === 'register');
+  }
+
+  function doLogin() {
+    const usuario = document.getElementById('login-usuario').value.trim();
+    const password = document.getElementById('login-pass').value.trim();
+    if (!usuario || !password) { showToast('Ingresa usuario y contraseña', 'error'); return; }
+    const result = Auth.login(usuario, password);
+    if (result.ok) {
+      showToast(`¡Bienvenido, ${result.nombre}! 🌿`, 'success');
+      setTimeout(() => window.location.href = 'index.html', 800);
+    } else {
+      showToast(result.msg, 'error');
+    }
+  }
+
+  function doRegister() {
+    const nombre   = document.getElementById('reg-nombre').value.trim();
+    const usuario  = document.getElementById('reg-usuario').value.trim();
+    const password = document.getElementById('reg-pass').value.trim();
+    const edad     = parseInt(document.getElementById('reg-edad').value);
+    const sexo     = document.getElementById('reg-sexo').value;
+    if (!nombre || !usuario || !password) { showToast('Completa todos los campos', 'error'); return; }
+    if (password.length < 4) { showToast('La contraseña debe tener al menos 4 caracteres', 'error'); return; }
+    const result = Auth.login(usuario, password, { nombre, edad, sexo });
+    if (result.ok) {
+      showToast(`¡Cuenta creada! Bienvenido, ${result.nombre} 🎉`, 'success');
+      setTimeout(() => window.location.href = 'index.html', 800);
+    } else {
+      showToast(result.msg, 'error');
+    }
+  }
+
+  function irAdmin() { window.location.href = 'admin.html'; }
+
+  function togglePass(id) {
+    const input = document.getElementById(id);
+    input.type = input.type === 'password' ? 'text' : 'password';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const tab = document.getElementById('tab-login').classList.contains('active') ? 'login' : 'register';
+      if (tab === 'login') doLogin(); else doRegister();
+    }
+  });
+</script>
+</body>
+</html>

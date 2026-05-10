@@ -1,0 +1,8 @@
+﻿{
+  "name": "Mi Sistema",
+  "short_name": "MiApp",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a"
+}

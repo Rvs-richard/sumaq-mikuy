@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sumaq Mikuy – Panel Admin</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/app.css">
+  <style>
+    body { background: var(--bg-deep); min-height: 100vh; }
+
+    /* LOGIN ADMIN */
+    .admin-login-screen {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 20%, rgba(52,120,69,0.2) 0%, transparent 60%),
+        var(--bg-deep);
+    }
+    .admin-login-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-2xl);
+      padding: 40px; width: 100%; max-width: 420px;
+      box-shadow: var(--shadow-xl);
+      animation: fadeUp 0.4s ease;
+    }
+
+    /* ADMIN PANEL */
+    .admin-layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 240px; background: var(--bg-card); padding: 24px 16px;
+      display: flex; flex-direction: column; flex-shrink: 0; min-height: 100vh;
+      border-right: 1px solid var(--border); position: sticky; top: 0;
+    }
+    .sidebar-brand { font-family: var(--font-display); color: var(--white); font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .sidebar-brand span { color: var(--accent); }
+    .sidebar-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 32px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .sidebar-item {
+      padding: 10px 14px; border-radius: var(--radius-md); color: var(--text-muted);
+      font-size: 14px; font-weight: 500; cursor: pointer; transition: var(--transition);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sidebar-item:hover, .sidebar-item.active { background: var(--green-100); color: var(--accent); }
+    .sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
+    .admin-main { flex: 1; padding: 32px; overflow-y: auto; }
+    .admin-section { display: none; }
+    .admin-section.active { display: block; animation: fadeUp 0.3s ease; }
+    .admin-header { margin-bottom: 28px; }
+    .admin-header h1 { font-family: var(--font-display); font-size: 26px; color: var(--text); margin-bottom: 4px; }
+    .admin-header p { color: var(--text-muted); font-size: 13px; }
+
+    .dark-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 24px; color: var(--white);
+      margin-bottom: 16px;
+    }
+    .grid-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px;
+      border-top: 2px solid var(--green-400);
+    }
+    .stat-value { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--accent); margin: 6px 0 4px; }
+    .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+    .stat-icon { font-size: 22px; }
+
+    .pedido-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border-radius: var(--radius-md);
+      background: var(--bg-card2); margin-bottom: 8px; font-size: 13px;
+      color: var(--green-200); border: 1px solid var(--border);
+      transition: var(--transition);
+    }
+    .pedido-row:hover { border-color: var(--border-strong); }
+    .bowl-bar { margin-bottom: 14px; }
+    .bowl-bar-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-light); margin-bottom: 6px; }
+    .bowl-bar-track { background: rgba(255,255,255,0.06); border-radius: var(--radius-full); height: 10px; overflow: hidden; }
+    .bowl-bar-fill { background: linear-gradient(90deg, var(--green-600), var(--accent)); height: 100%; border-radius: var(--radius-full); transition: width .6s ease; }
+
+    .users-table { width: 100%; border-collapse: collapse; }
+    .users-table th { text-align: left; padding: 10px 14px; font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; border-bottom: 1px solid var(--border); }
+    .users-table td { padding: 12px 14px; font-size: 13px; color: var(--text-light); border-bottom: 1px solid rgba(72,160,94,0.08); }
+    .users-table tr:hover td { background: rgba(72,160,94,0.04); }
+
+    .section-title-admin { font-family: var(--font-display); font-size: 20px; color: var(--text); margin-bottom: 16px; }
+
+    /* Config */
+    .config-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .config-row:last-child { border-bottom: none; }
+    .config-label { font-size: 14px; color: var(--text); font-weight: 500; }
+    .config-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .toggle {
+      width: 48px; height: 26px; border-radius: 13px;
+      background: var(--bg-card2); border: 2px solid var(--border);
+      cursor: pointer; position: relative; transition: var(--transition);
+    }
+    .toggle.on { background: var(--green-500); border-color: var(--green-400); }
+    .toggle::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 18px; height: 18px; border-radius: 50%; background: white;
+      transition: var(--transition); box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .toggle.on::after { transform: translateX(22px); }
+  </style>
+</head>
+<body>
+<div id="toast-container"></div>
+
+<!-- LOGIN SCREEN -->
+<div id="admin-login-screen" class="admin-login-screen">
+  <div class="admin-login-card">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:40px;margin-bottom:12px">🔐</div>
+      <h2 style="font-family:var(--font-display);font-size:24px;margin-bottom:4px">Panel Administrador</h2>
+      <p style="font-size:13px;color:var(--text-muted)">Sumaq Mikuy · Acceso restringido</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Usuario Admin</label>
+      <input type="text" id="admin-user" class="input-field" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <input type="password" id="admin-pass" class="input-field" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-green btn-full btn-lg" style="margin-top:16px" onclick="doAdminLogin()">
+      Acceder al Panel →
+    </button>
+    <div style="text-align:center;margin-top:16px;font-size:13px;color:var(--text-muted)">
+      <a href="login.html" style="color:var(--text-muted);border-bottom:1px solid var(--border)">← Volver al inicio</a>
+    </div>
+    <div style="background:var(--green-100);border-radius:var(--radius-md);padding:10px 14px;margin-top:16px;font-size:12px;color:var(--text-muted);text-align:center">
+      Usuario: <strong style="color:var(--accent)">admin</strong> · Contraseña: <strong style="color:var(--accent)">sumaq2024</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL (hidden until login) -->
+<div id="admin-panel" style="display:none">
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">Sumaq <span>Mikuy</span></div>
+      <div class="sidebar-sub">Panel Admin</div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-item active" onclick="adminNav('dashboard')">📊 Dashboard</div>
+        <div class="sidebar-item" onclick="adminNav('pedidos')">📦 Pedidos</div>
+        <div class="sidebar-item" onclick="adminNav('usuarios')">👥 Usuarios</div>
+        <div class="sidebar-item" onclick="adminNav('bowls')">🥗 Bowls</div>
+        <div class="sidebar-item" onclick="adminNav('configuracion')">⚙️ Configuración</div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-item" onclick="window.location.href='index.html'">← Ir a la App</div>
+        <div class="sidebar-item" style="color:#f87171" onclick="adminLogout()">🚪 Cerrar sesión</div>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <!-- DASHBOARD -->
+      <div id="admin-dashboard" class="admin-section active">
+        <div class="admin-header">
+          <h1>📊 Dashboard</h1>
+          <p id="admin-greeting">Bienvenido al panel de administración</p>
+        </div>
+        <div class="grid-stats" id="admin-stats"></div>
+        <div class="grid-2">
+          <div class="dark-card">
+            <h3 class="section-title-admin">📦 Últimos Pedidos</h3>
+            <div id="admin-pedidos-list"></div>
+          </div>
+          <div class="dark-card">
+            <h3 class="section-title-admin">🥗 Bowls más pedidos</h3>
+            <div id="admin-bowls-chart"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PEDIDOS -->
+      <div id="admin-pedidos" class="admin-section">
+        <div class="admin-header">
+          <h1>📦 Todos los Pedidos</h1>
+          <p>Historial completo de pedidos</p>
+        </div>
+        <div class="dark-card">
+          <div id="admin-all-pedidos"></div>
+        </div>
+      </div>
+
+      <!-- USUARIOS -->
+      <div id="admin-usuarios" class="admin-section">
+        <div class="admin-header">
+          <h1>👥 Usuarios</h1>
+          <p>Clientes registrados en el sistema</p>
+        </div>
+        <div class="dark-card">
+          <div id="admin-users-list"></div>
+        </div>
+      </div>
+
+      <!-- BOWLS -->
+      <div id="admin-bowls" class="admin-section">
+        <div class="admin-header">
+          <h1>🥗 Gestión de Bowls</h1>
+          <p>Información y estadísticas de los bowls</p>
+        </div>
+        <div id="admin-bowls-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px"></div>
+      </div>
+
+      <!-- CONFIGURACION -->
+      <div id="admin-configuracion" class="admin-section">
+        <div class="admin-header">
+          <h1>⚙️ Configuración</h1>
+          <p>Ajustes del sistema</p>
+        </div>
+        <div class="dark-card">
+          <h3 class="section-title-admin" style="margin-bottom:20px">API & Sistema</h3>
+          <div class="form-group">
+            <label class="form-label">API Key de Anthropic (Chat IA)</label>
+            <input type="password" id="api-key-input" class="input-field" placeholder="sk-ant-...">
+            <div style="font-size:12px;color:var(--text-muted);margin-top:6px">Esta clave se usa para el chatbot IA. Obtén la tuya en console.anthropic.com</div>
+          </div>
+          <button class="btn btn-green btn-sm" onclick="saveApiKey()">💾 Guardar API Key</button>
+          <div class="divider"></div>
+          <div class="config-row">
+            <div>
+              <div class="config-label">Chat IA activo</div>
+              <div class="config-desc">Permite a clientes usar el chatbot nutricional</div>
+            </div>
+            <div class="toggle on" id="toggle-chat" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="config-row">
+            <div>
+              <div class="config-label">Delivery disponible</div>
+              <div class="config-desc">Acepta pedidos con delivery actualmente</div>
+            </div>
+            <div class="toggle on" id="toggle-delivery" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="divider"></div>
+          <div style="margin-top:8px">
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Datos del sistema</div>
+            <button class="btn btn-secondary btn-sm" onclick="exportData()">📤 Exportar datos</button>
+            <button class="btn btn-outline btn-sm" style="margin-left:8px;border-color:rgba(239,68,68,0.4);color:#f87171" onclick="clearData()">🗑️ Limpiar métricas</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/store.js"></script>
+<script src="js/nutrition.js"></script>
+<script>
+  // Check if admin logged in
+  if (Auth.isAdmin()) {
+    showAdminPanel();
+  }
+
+  function doAdminLogin() {
+    const user = document.getElementById('admin-user').value.trim();
+    const pass = document.getElementById('admin-pass').value.trim();
+    if (!user || !pass) { showToast('Ingresa credenciales', 'error'); return; }
+    if (Auth.loginAdmin(user, pass)) {
+      showToast('Acceso concedido ✅', 'success');
+      setTimeout(showAdminPanel, 500);
+    } else {
+      showToast('Credenciales incorrectas', 'error');
+      document.getElementById('admin-pass').value = '';
+    }
+  }
+
+  function showAdminPanel() {
+    document.getElementById('admin-login-screen').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    loadDashboard();
+    // Load saved API key
+    const savedKey = Store.get('admin_api_key');
+    if (savedKey) document.getElementById('api-key-input').value = savedKey;
+  }
+
+  function adminLogout() {
+    Auth.logoutAdmin();
+    window.location.href = 'login.html';
+  }
+
+  function adminNav(section) {
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    document.getElementById('admin-' + section).classList.add('active');
+    event.currentTarget.classList.add('active');
+
+    if (section === 'dashboard') loadDashboard();
+    if (section === 'pedidos') loadPedidos();
+    if (section === 'usuarios') loadUsuarios();
+    if (section === 'bowls') loadBowlsAdmin();
+  }
+
+  function loadDashboard() {
+    const metrics = Metrics.get();
+    const historial = Store.get('historial_pedidos', []);
+    const bowlCount = {};
+    historial.forEach(p => p.items?.forEach(i => {
+      bowlCount[i.bowlId] = (bowlCount[i.bowlId] || 0) + (i.cantidad || 1);
+    }));
+    const topBowl = Object.entries(bowlCount).sort((a,b) => b[1]-a[1])[0];
+
+    // Stats
+    const statsEl = document.getElementById('admin-stats');
+    statsEl.innerHTML = [
+      { icon: '📦', label: 'Total Pedidos', value: historial.length, color: 'var(--accent)' },
+      { icon: '💰', label: 'Total Ventas', value: formatMoney(metrics.totalVentas), color: 'var(--gold)' },
+      { icon: '🎯', label: 'Recomendaciones', value: metrics.recomendaciones, color: '#3b82f6' },
+      { icon: '📈', label: 'Conversión', value: metrics.conversion + '%', color: '#a855f7' },
+      { icon: '🎫', label: 'Ticket Promedio', value: formatMoney(metrics.ticketPromedio), color: '#22c55e' },
+      { icon: '⭐', label: 'Bowl Top', value: topBowl ? (BOWLS[topBowl[0]]?.nombre || '—') : '—', color: 'var(--gold-light)' },
+    ].map(s => `
+      <div class="stat-card" style="border-top-color:${s.color}">
+        <div class="stat-icon">${s.icon}</div>
+        <div class="stat-value" style="color:${s.color}">${s.value}</div>
+        <div class="stat-label">${s.label}</div>
+      </div>
+    `).join('');
+
+    // Last pedidos
+    const pedidosEl = document.getElementById('admin-pedidos-list');
+    pedidosEl.innerHTML = historial.length === 0
+      ? '<div class="empty-state" style="padding:24px"><p>Sin pedidos aún</p></div>'
+      : historial.slice(0, 6).map(p => `
+          <div class="pedido-row">
+            <div>
+              <div>${p.nombre}</div>
+              <div style="font-size:11px;color:var(--text-muted)">${formatDate(p.fecha)} · ${p.items.length} item(s)</div>
+            </div>
+            <span style="font-weight:700;color:var(--accent)">${formatMoney(p.total)}</span>
+          </div>
+        `).join('');
+
+    // Bowls chart
+    const bowlsEl = document.getElementById('admin-bowls-chart');
+    const total = Object.values(bowlCount).reduce((a,b) => a+b, 0) || 1;
+    bowlsEl.innerHTML = Object.keys(bowlCount).length === 0
+      ? '<div class="empty-state" style="padding:24px"><p>Sin datos aún</p></div>'
+      : Object.entries(bowlCount).sort((a,b) => b[1]-a[1]).map(([id, count]) => {
+          const bowl = BOWLS[id];
+          const pct = Math.round((count / total) * 100);
+          return `
+            <div class="bowl-bar">
+              <div class="bowl-bar-label"><span>${bowl?.emoji} ${bowl?.nombre || id}</span><span>${count} pedidos</span></div>
+              <div class="bowl-bar-track"><div class="bowl-bar-fill" style="width:${pct}%"></div></div>
+            </div>`;
+        }).join('');
+  }
+
+  function loadPedidos() {
+    const historial = Store.get('historial_pedidos', []);
+    const el = document.getElementById('admin-all-pedidos');
+    el.innerHTML = historial.length === 0
+      ? '<div class="empty-state"><p>Sin pedidos</p></div>'
+      : historial.map(p => `
+          <div class="pedido-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+            <div style="display:flex;justify-content:space-between;width:100%">
+              <div>
+                <span style="font-weight:700">${p.nombre}</span>
+                <span style="font-size:11px;color:var(--text-muted);margin-left:8px">${formatDate(p.fecha)}</span>
+              </div>
+              <span style="color:var(--accent);font-weight:700">${formatMoney(p.total)}</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted)">
+              ${p.items.map(i => `${i.emoji} ${i.nombre} × ${i.cantidad || 1}`).join(' · ')}
+            </div>
+          </div>
+        `).join('');
+  }
+
+  function loadUsuarios() {
+    const usuarios = Store.get('usuarios', []);
+    const el = document.getElementById('admin-users-list');
+    if (!usuarios.length) {
+      el.innerHTML = '<div class="empty-state"><p>Sin usuarios registrados</p></div>';
+      return;
+    }
+    el.innerHTML = `
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Nombre</th>
+            <th>Registrado</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${usuarios.map(u => `
+            <tr>
+              <td>${u.usuario}</td>
+              <td>${u.nombre || '—'}</td>
+              <td>${u.creadoEn ? formatDate(u.creadoEn) : '—'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  function loadBowlsAdmin() {
+    const el = document.getElementById('admin-bowls-grid');
+    el.innerHTML = Object.values(BOWLS).map(b => `
+      <div class="dark-card" style="text-align:center">
+        <div style="font-size:40px;margin-bottom:8px">${b.emoji}</div>
+        <div style="font-family:var(--font-display);font-size:18px;margin-bottom:4px">${b.nombre}</div>
+        <div style="color:var(--accent);font-size:20px;font-weight:700;margin-bottom:10px">${formatMoney(b.precio)}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">${b.descripcion}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center">
+          <span style="background:rgba(92,206,122,.1);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px">🔥 ${b.calorias} kcal</span>
+          <span style="background:rgba(92,206,122,.1);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px">💪 ${b.proteinas}g prot</span>
+          <span style="background:rgba(92,206,122,.1);color:var(--accent);padding:3px 10px;border-radius:20px;font-size:11px">🌾 ${b.carbos}g carbos</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function saveApiKey() {
+    const key = document.getElementById('api-key-input').value.trim();
+    if (!key) { showToast('Ingresa una API key', 'error'); return; }
+    Store.set('admin_api_key', key);
+    // This would normally be done server-side. For now we save it.
+    showToast('API Key guardada ✅', 'success');
+  }
+
+  function exportData() {
+    const data = {
+      pedidos: Store.get('historial_pedidos', []),
+      metricas: Metrics.get(),
+      usuarios: Store.get('usuarios', []).map(u => ({ usuario: u.usuario, nombre: u.nombre, creadoEn: u.creadoEn })),
+      exportado: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'sumaq-mikuy-datos.json'; a.click();
+    showToast('Datos exportados ✅', 'success');
+  }
+
+  function clearData() {
+    if (!confirm('¿Seguro que deseas limpiar las métricas? Esto no borra pedidos ni usuarios.')) return;
+    Store.remove('metrics');
+    Store.remove('metrics_log');
+    showToast('Métricas limpiadas', 'info');
+    loadDashboard();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('admin-login-screen').style.display !== 'none') {
+      doAdminLogin();
+    }
+  });
+</script>
+</body>
+</html>
