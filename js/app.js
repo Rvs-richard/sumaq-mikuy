@@ -119,7 +119,21 @@ function evaluarNutricion() {
     <div class="divider"></div>
     <div style="text-align:center;margin-top:16px">
       <div class="recommended-badge">⭐ Top Recomendado para ti</div>
-      <div style="font-size:40px;margin:12px 0">${top.emoji}</div>
+      <div style="margin:16px 0">
+
+  <img 
+    src="${top.emoji}" 
+    alt="${top.nombre}"
+    style="
+      width:110px;
+      height:110px;
+      object-fit:cover;
+      border-radius:20px;
+      box-shadow:0 8px 20px rgba(0,0,0,.15);
+    "
+  >
+
+</div>
       <div style="font-weight:700;font-size:20px;color:var(--text)">${top.nombre}</div>
       <div style="color:var(--text-muted);font-size:13px;margin:6px 0">${top.descripcion}</div>
       <div style="font-size:22px;font-weight:700;color:var(--accent);margin:10px 0">${formatMoney(top.precio)}</div>
@@ -222,13 +236,23 @@ function seleccionarBowl(id) {
 
 // ===== PEDIDO CON TOPPINGS =====
 function populateBowlSelect() {
+
   const select = document.getElementById('bowl-select');
+
   if (!select) return;
-  select.innerHTML = Object.values(BOWLS).map(b=>
-    `<option value="${b.id}">${b.emoji} ${b.nombre} — ${formatMoney(b.precio)}</option>`
-  ).join('');
-  select.addEventListener('change', () => { renderPedidoPreview(); });
-  document.getElementById('zona-select')?.addEventListener('change', renderPedidoPreview);
+
+  select.innerHTML = Object.values(BOWLS).map(b => `
+    <option value="${b.id}">
+      ${b.nombre} — ${formatMoney(b.precio)}
+    </option>
+  `).join('');
+
+  select.addEventListener('change', () => {
+    renderPedidoPreview();
+  });
+
+  document.getElementById('zona-select')
+    ?.addEventListener('change', renderPedidoPreview);
 }
 
 function renderToppings() {
@@ -282,10 +306,58 @@ function renderPedidoPreview() {
 
   preview.innerHTML = `
     <div style="background:var(--bg-card2);border-radius:12px;padding:14px;margin-top:12px">
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-        <span style="color:var(--text-light)">${bowl.emoji} ${bowl.nombre}</span>
-        <span style="font-weight:700">${formatMoney(bowl.precio)}</span>
+      <div style="
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+">
+
+  <div style="
+    display:flex;
+    align-items:center;
+    gap:12px;
+  ">
+
+    <img 
+      src="${bowl.emoji}" 
+      alt="${bowl.nombre}"
+      style="
+        width:60px;
+        height:60px;
+        object-fit:cover;
+        border-radius:14px;
+      "
+    >
+
+    <div>
+
+      <div style="
+        color:var(--text-light);
+        font-weight:700;
+      ">
+        ${bowl.nombre}
       </div>
+
+      <div style="
+        font-size:12px;
+        color:var(--text-muted);
+      ">
+        Bowl saludable
+      </div>
+
+    </div>
+
+  </div>
+
+  <span style="
+    font-weight:700;
+    font-size:18px;
+  ">
+    ${formatMoney(bowl.precio)}
+  </span>
+
+</div>
       ${toppingLines}
       ${precioExtra>0?`<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-muted)">
         <span>Toppings (${selectedToppings.length})</span><span>+${formatMoney(precioExtra)}</span></div>`:''}
@@ -346,7 +418,45 @@ function renderHistorial() {
           <span class="historial-date">📅 ${formatDate(p.fecha)}</span>
           <span class="historial-total">${formatMoney(p.total)}</span>
         </div>
-        <div class="historial-items">${p.items?.map(i=>`${i.emoji||'🥗'} ${i.nombre}${i.cantidad>1?` ×${i.cantidad}`:''}`).join(' · ')||''}</div>
+        <div class="historial-items">
+
+  ${p.items?.map(i => `
+
+    <div style="
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+    ">
+
+      <img 
+        src="${i.emoji}" 
+        alt="${i.nombre}"
+        style="
+          width:50px;
+          height:50px;
+          object-fit:cover;
+          border-radius:12px;
+        "
+      >
+
+      <div>
+
+        <div style="
+          font-weight:700;
+          color:var(--text-light);
+        ">
+          ${i.nombre}
+          ${i.cantidad > 1 ? ` ×${i.cantidad}` : ''}
+        </div>
+
+      </div>
+
+    </div>
+
+  `).join('') || ''}
+
+</div>
         ${toppingCount>0?`<div style="font-size:11px;color:var(--green-400);margin-top:4px">✨ ${toppingCount} topping(s) personalizado(s)</div>`:''}
         <div style="display:flex;gap:8px;margin-top:8px">
           <button class="btn btn-secondary btn-sm" onclick="Cart.repeatOrder(${p.id})">🔁 Repetir</button>
