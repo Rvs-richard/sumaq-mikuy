@@ -538,7 +538,7 @@
     if (heroGrid) {
       heroGrid.innerHTML = Object.values(BOWLS).map(bowl => `
         <div class="bowl-card" onclick="showSection('nutricion')" style="cursor:pointer">
-          <span class="bowl-emoji-big">${bowl.emoji}</span>
+        <img src="${bowl.emoji}" alt="${bowl.nombre}" class="bowl-emoji-big" style="width:72px;height:72px;object-fit:cover;border-radius:50%;">
           <div class="bowl-name">${bowl.nombre}</div>
           <div class="bowl-price">${formatMoney(bowl.precio)}</div>
           <div class="bowl-desc">${bowl.descripcion}</div>

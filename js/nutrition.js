@@ -2,42 +2,42 @@
 
 const BOWLS = {
   light: {
-    id: 'light', nombre: 'Bowl Light', precio: 15, emoji: '🥗',
+    id: 'light', nombre: 'Bowl Light', precio: 15, emoji: 'img/bowl ligth.png',
     calorias: 320, proteinas: 18, carbos: 35, grasas: 8,
     descripcion: 'Ensalada de quinua, espinacas, pepino, tomate cherry y aderezo de limón',
     beneficios: ['Bajo en calorías', 'Alto en fibra', 'Hidratante', 'Antioxidantes'],
     tags: ['#bajarPeso', '#ligero', '#detox'], objetivos: ['bajar']
   },
   proteico: {
-    id: 'proteico', nombre: 'Bowl Proteico', precio: 20, emoji: '💪',
+    id: 'proteico', nombre: 'Bowl Proteico', precio: 20, emoji: 'img/bolw proteico.png',
     calorias: 580, proteinas: 42, carbos: 48, grasas: 14,
     descripcion: 'Pollo a la plancha, huevo, quinua, camote, espinacas y salsa de maní',
     beneficios: ['Alto en proteína', 'Gana masa muscular', 'Saciante', 'Energizante'],
     tags: ['#musculo', '#proteina', '#fitness'], objetivos: ['subir']
   },
   balanceado: {
-    id: 'balanceado', nombre: 'Bowl Balanceado', precio: 18, emoji: '⚖️',
+    id: 'balanceado', nombre: 'Bowl Balanceado', precio: 18, emoji:  'img/bowl balanceado.png',
     calorias: 450, proteinas: 28, carbos: 52, grasas: 11,
     descripcion: 'Arroz integral, legumbres, verduras salteadas, aguacate y vinagreta de hierbas',
     beneficios: ['Equilibrio nutricional', 'Energía sostenida', 'Digestión saludable', 'Vitaminas completas'],
     tags: ['#mantener', '#balanceado', '#salud'], objetivos: ['mantener']
   },
   energia: {
-    id: 'energia', nombre: 'Bowl Energía', precio: 22, emoji: '⚡',
+    id: 'energia', nombre: 'Bowl Energía', precio: 22, emoji: 'img/bowl energia.png',
     calorias: 520, proteinas: 22, carbos: 72, grasas: 12,
     descripcion: 'Avena, plátano, mango, granola casera, semillas de chía y miel de abeja',
     beneficios: ['Energía inmediata', 'Carbohidratos complejos', 'Rico en omega-3', 'Prebióticos'],
     tags: ['#energia', '#carbohidratos', '#activo'], objetivos: ['subir', 'mantener']
   },
   detox: {
-    id: 'detox', nombre: 'Bowl Detox', precio: 16, emoji: '🌿',
+    id: 'detox', nombre: 'Bowl Detox', precio: 16, emoji: 'img/bowl_detox.png',  
     calorias: 280, proteinas: 12, carbos: 42, grasas: 6,
     descripcion: 'Espinacas, pepino, apio, manzana verde, jengibre y semillas de linaza',
     beneficios: ['Depurativo', 'Antioxidante', 'Alcalinizante', 'Bajo en calorías'],
     tags: ['#detox', '#depurativo', '#verde'], objetivos: ['bajar']
   },
   andino: {
-    id: 'andino', nombre: 'Bowl Andino Premium', precio: 24, emoji: '🏔️',
+    id: 'andino', nombre: 'Bowl Andino Premium', precio: 24, emoji: 'img/bowl_andino.png',
     calorias: 490, proteinas: 35, carbos: 55, grasas: 13,
     descripcion: 'Quinua roja, kiwicha, cañihua, trucha andina, habas y rocoto suave',
     beneficios: ['Superalimentos andinos', 'Rico en hierro', 'Alta fibra', 'Proteína completa'],

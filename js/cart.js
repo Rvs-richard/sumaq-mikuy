@@ -106,7 +106,8 @@ const Cart = {
       return `
         <div class="cart-item animate-fade-up" data-id="${item.id}">
           <div class="cart-item-info">
-            <span class="cart-item-emoji">${item.emoji}</span>
+         <img src="${bowl?.emoji || item.emoji || ''}" alt="${item.nombre}"
+     style="width:48px;height:48px;object-fit:cover;border-radius:50%;flex-shrink:0">
             <div style="flex:1">
               <div class="cart-item-name">${item.nombre}</div>
               ${toppingNames?`<div style="font-size:11px;color:var(--green-400);margin-top:2px">+${toppingNames}</div>`:''}

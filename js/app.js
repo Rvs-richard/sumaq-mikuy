@@ -159,7 +159,7 @@ function renderBowls(recomendadosIds=[]) {
     return `
       <div class="bowl-card ${isRec?'recommended':''}" onclick="abrirDetalleBowl('${bowl.id}')">
         ${isRec?'<div class="recommended-badge">⭐ Recomendado para ti</div>':''}
-        <span class="bowl-emoji-big">${bowl.emoji}</span>
+        <img src="${bowl.emoji}" alt="${bowl.nombre}" class="bowl-emoji-big" style="width:72px;height:72px;object-fit:cover;border-radius:50%;">
         <div class="bowl-name">${bowl.nombre}</div>
         <div class="bowl-price">${formatMoney(bowl.precio)}</div>
         <div class="bowl-desc">${bowl.descripcion}</div>
@@ -182,7 +182,7 @@ function abrirDetalleBowl(id) {
   if (!bowl) return;
   openModal(`
     <div style="text-align:center;padding:8px 0 16px">
-      <div style="font-size:60px;margin-bottom:8px">${bowl.emoji}</div>
+     <img src="${bowl.emoji}" alt="${bowl.nombre}" style="width:90px;height:90px;object-fit:cover;border-radius:50%;margin-bottom:8px;">
       <h2 style="font-family:var(--font-display);font-size:24px;margin-bottom:4px">${bowl.nombre}</h2>
       <div style="font-size:22px;font-weight:700;color:var(--accent);margin-bottom:12px">${formatMoney(bowl.precio)}</div>
       <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">${bowl.descripcion}</p>

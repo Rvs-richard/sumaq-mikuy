@@ -43,4 +43,8 @@ ESTRUCTURA:
       ├── cart.js       → Carrito
       ├── chatbot.js    → Chat IA (Claude)
       └── app.js        → Controlador principal
-=====================================
+===================================== 
+migrar a git
+git add .
+git commit -m "mostrar imagen en celular"
+git push
